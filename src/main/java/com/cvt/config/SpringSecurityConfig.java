@@ -7,6 +7,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.User.UserBuilder;
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -22,15 +23,19 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 .withUser(users.username("susan").password("test123").roles("EMPLOYEE","ADMIN"));
     }
 
+
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
                                                 /*.anyRequest().authenticated()*/
         http.authorizeRequests()
+               // .antMatchers("/test/").hasAnyRole("EMPLOYEE","MANAGER","ADMIN")
                 .antMatchers("/").hasRole("EMPLOYEE")
                 .antMatchers("/managers/**").hasRole("MANAGER")
                 .antMatchers("/admins/**").hasRole("ADMIN")
                 .and()
                     .formLogin()
+                         .successHandler(new SavedRequestAwareAuthenticationSuccessHandler())
                         .loginPage("/showLoginPage")
                         .loginProcessingUrl("/authenticateTheUser")
                         .permitAll()
@@ -38,4 +43,6 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                     .logout().permitAll()
                 .and().exceptionHandling().accessDeniedPage("/access-denied");
     }
+
+
 }
